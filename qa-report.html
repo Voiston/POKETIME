@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POKETIME QA Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #fafafa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .summary-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .critical .number { color: #d32f2f; }
+        .major .number { color: #f57c00; }
+        .minor .number { color: #fbc02d; }
+        .pass .number { color: #388e3c; }
+
+        .findings {
+            padding: 30px;
+        }
+
+        .finding-section {
+            margin-bottom: 40px;
+        }
+
+        .finding-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+        }
+
+        .finding-section.critical h2 { border-color: #d32f2f; color: #d32f2f; }
+        .finding-section.major h2 { border-color: #f57c00; color: #f57c00; }
+        .finding-section.minor h2 { border-color: #fbc02d; color: #fbc02d; }
+        .finding-section.pass h2 { border-color: #388e3c; color: #388e3c; }
+
+        .finding-card {
+            background: #fafafa;
+            border-left: 4px solid;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .finding-card.critical { border-color: #d32f2f; }
+        .finding-card.major { border-color: #f57c00; }
+        .finding-card.minor { border-color: #fbc02d; }
+        .finding-card.pass { border-color: #388e3c; }
+
+        .finding-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .finding-detail {
+            margin-bottom: 10px;
+        }
+
+        .finding-label {
+            font-weight: 600;
+            color: #555;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        .finding-value {
+            color: #333;
+        }
+
+        .environment, .residual-risks {
+            padding: 30px;
+            background: #fff3e0;
+            border-top: 2px solid #ffb74d;
+        }
+
+        .residual-risks {
+            background: #fce4ec;
+            border-top-color: #f06292;
+        }
+
+        .environment h3, .residual-risks h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .environment ul, .residual-risks ul {
+            padding-left: 20px;
+        }
+
+        .environment li, .residual-risks li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .badge.critical { background: #d32f2f; color: white; }
+        .badge.major { background: #f57c00; color: white; }
+        .badge.minor { background: #fbc02d; color: #333; }
+        .badge.pass { background: #388e3c; color: white; }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 POKETIME QA SMOKE TEST REPORT</h1>
+            <p>Comprehensive Quality Assurance Testing Results</p>
+            <p id="timestamp"></p>
+        </header>
+
+        <div class="summary">
+            <div class="summary-card critical">
+                <div class="number" id="criticalCount">0</div>
+                <div class="label">Critical</div>
+            </div>
+            <div class="summary-card major">
+                <div class="number" id="majorCount">0</div>
+                <div class="label">Major</div>
+            </div>
+            <div class="summary-card minor">
+                <div class="number" id="minorCount">0</div>
+                <div class="label">Minor</div>
+            </div>
+            <div class="summary-card pass">
+                <div class="number" id="passCount">0</div>
+                <div class="label">Passed</div>
+            </div>
+        </div>
+
+        <div class="findings">
+            <div class="finding-section critical" id="criticalSection" style="display: none;">
+                <h2>🔴 Critical Findings</h2>
+                <div id="criticalFindings"></div>
+            </div>
+
+            <div class="finding-section major" id="majorSection" style="display: none;">
+                <h2>🟠 Major Findings</h2>
+                <div id="majorFindings"></div>
+            </div>
+
+            <div class="finding-section minor" id="minorSection" style="display: none;">
+                <h2>🟡 Minor Findings</h2>
+                <div id="minorFindings"></div>
+            </div>
+
+            <div class="finding-section pass" id="passSection" style="display: none;">
+                <h2>✅ Passed Tests</h2>
+                <div id="passFindings"></div>
+            </div>
+        </div>
+
+        <div class="environment">
+            <h3>⚙️ Environment Constraints</h3>
+            <ul>
+                <li><strong>Browser:</strong> <span id="browserInfo"></span></li>
+                <li><strong>Test Execution:</strong> Some tests require manual page reload to observe behavior</li>
+                <li><strong>File Picker Limitation:</strong> Import via file picker cannot be fully automated</li>
+                <li><strong>LocalStorage Manipulation:</strong> Tests modify and restore save data during execution</li>
+                <li><strong>Test Duration:</strong> Click stress test runs for 20 seconds</li>
+            </ul>
+        </div>
+
+        <div class="residual-risks">
+            <h3>⚠️ Residual Risks (Not Validated)</h3>
+            <ul>
+                <li>Manual file import with malformed JSON files</li>
+                <li>Network conditions affecting external assets (Google Fonts, PokeAPI sprites)</li>
+                <li>Browser-specific rendering quirks across different browsers</li>
+                <li>Long-term memory leaks (requires extended session monitoring)</li>
+                <li>Concurrent tab behavior (multiple game instances)</li>
+                <li>Mobile device compatibility and touch interactions</li>
+                <li>Extreme save file sizes (thousands of creatures)</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Generated by POKETIME QA Test Suite | Run <code>runQATests()</code> in console to regenerate</p>
+        </footer>
+    </div>
+
+    <script>
+        // This script expects QA_TEST_RESULTS to be available in global scope
+        // Copy from console after running tests or inject via script
+        
+        function populateReport(results) {
+            if (!results || results.length === 0) {
+                document.querySelector('.findings').innerHTML = '<p style="text-align:center;padding:40px;color:#999;">No test results available. Run <code>runQATests()</code> in console first.</p>';
+                return;
+            }
+
+            const grouped = {
+                CRITICAL: [],
+                MAJOR: [],
+                MINOR: [],
+                PASS: []
+            };
+
+            results.forEach(r => grouped[r.severity].push(r));
+
+            // Update counts
+            document.getElementById('criticalCount').textContent = grouped.CRITICAL.length;
+            document.getElementById('majorCount').textContent = grouped.MAJOR.length;
+            document.getElementById('minorCount').textContent = grouped.MINOR.length;
+            document.getElementById('passCount').textContent = grouped.PASS.length;
+
+            // Populate findings
+            ['CRITICAL', 'MAJOR', 'MINOR', 'PASS'].forEach(severity => {
+                const findings = grouped[severity];
+                if (findings.length === 0) return;
+
+                const sectionId = severity.toLowerCase() + 'Section';
+                const findingsId = severity.toLowerCase() + 'Findings';
+
+                document.getElementById(sectionId).style.display = 'block';
+                const container = document.getElementById(findingsId);
+
+                findings.forEach((finding, idx) => {
+                    const card = document.createElement('div');
+                    card.className = `finding-card ${severity.toLowerCase()}`;
+                    
+                    card.innerHTML = `
+                        <div class="finding-title">
+                            ${idx + 1}. ${finding.title}
+                            <span class="badge ${severity.toLowerCase()}">${severity}</span>
+                        </div>
+                        <div class="finding-detail">
+                            <span class="finding-label">Repro Steps:</span>
+                            <span class="finding-value">${finding.reproSteps}</span>
+                        </div>
+                        <div class="finding-detail">
+                            <span class="finding-label">Observed:</span>
+                            <span class="finding-value">${finding.observed}</span>
+                        </div>
+                        <div class="finding-detail">
+                            <span class="finding-label">Expected:</span>
+                            <span class="finding-value">${finding.expected}</span>
+                        </div>
+                        <div class="finding-detail">
+                            <span class="finding-label">Likely Root Cause:</span>
+                            <span class="finding-value">${finding.rootCause}</span>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            });
+
+            // Browser info
+            document.getElementById('browserInfo').textContent = navigator.userAgent;
+            document.getElementById('timestamp').textContent = `Generated: ${new Date().toLocaleString()}`;
+        }
+
+        // Try to load results from global scope or localStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof QA_TEST_RESULTS !== 'undefined') {
+                populateReport(QA_TEST_RESULTS);
+            } else {
+                const stored = localStorage.getItem('qa_test_results');
+                if (stored) {
+                    try {
+                        populateReport(JSON.parse(stored));
+                    } catch (e) {
+                        console.error('Failed to load stored results:', e);
+                    }
+                }
+            }
+        });
+
+        // Expose function to manually populate
+        window.populateReport = populateReport;
+    </script>
+</body>
+</html>

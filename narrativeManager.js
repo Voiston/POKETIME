@@ -370,6 +370,9 @@ class NarrativeManager {
         game.updateZoneSelector();
         game.updateDisplay();
         game.startGameLoop();
+        if (typeof game.resetBalanceTelemetrySession === 'function') {
+            game.resetBalanceTelemetrySession('narrative_intro_finish');
+        }
 
         game.generateQuest();
         game.nextQuestTimer = 60000;
