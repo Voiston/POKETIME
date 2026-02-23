@@ -10597,6 +10597,48 @@ body.narrative-stats-visible .header {
     /* Creature modal grid stacked */
     .creature-modal-grid {
         grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    /* Réduction globale du modal créature sur mobile */
+    .creature-modal-sprite-wrap {
+        padding: 5px !important;
+    }
+
+    .creature-modal-sprite {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .creature-modal-main {
+        gap: 8px !important;
+    }
+
+    .creature-modal-stats-box,
+    .creature-modal-info-box {
+        padding: 8px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .creature-modal-stats-row {
+        gap: 4px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .creature-modal-info {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 5px !important;
+    }
+
+    .creature-modal-actions {
+        padding-top: 5px !important;
+        gap: 5px !important;
+    }
+
+    .creature-modal-actions .btn {
+        padding: 8px !important;
+        font-size: 11px !important;
+        min-height: 32px !important;
     }
 
     /* Starter cards stacked */
