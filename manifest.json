@@ -2,8 +2,8 @@
   "name": "Pokétime CPU",
   "short_name": "Pokétime",
   "description": "Un jeu incrémental Pokémon",
-  "start_url": "./index.html",
-  "display": "standalone",
+  "start_url": ".",
+  "display": "fullscreen",
   "background_color": "#1e293b",
   "theme_color": "#0f172a",
   "icons": [

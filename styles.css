@@ -10603,8 +10603,12 @@ body.narrative-stats-visible .header {
         font-size: 14px !important;
     }
 
+    .quest-completion-content .egg-hatch-types {
+        display: none !important;
+    }
+
     .quest-completion-content .egg-hatch-stats {
-        margin: 10px 0 !important;
+        display: none !important;
     }
 
     .quest-completion-content .creature-stats {
