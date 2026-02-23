@@ -1378,7 +1378,13 @@ class Game {
             // 4. 🍎 Leftovers (Restes) — régénération par seconde du porteur actif
             if (this.currentPlayerCreature && this.currentPlayerCreature.heldItem === 'leftovers' && typeof HELD_ITEMS !== 'undefined') {
                 const cfg = HELD_ITEMS['leftovers'];
-                const healPercent = (cfg && cfg.effect && cfg.effect.heal_percent) ? cfg.effect.heal_percent : 0.02;
+                const baseHealPercent = (cfg && cfg.effect && cfg.effect.heal_percent) ? cfg.effect.heal_percent : 0.02;
+
+                // Bonus de collection ZzZzZ
+                const collBoost = (this.getCollectionBonuses ? this.getCollectionBonuses() : {}).leftovers_heal_mult || 0;
+
+                const healPercent = baseHealPercent + collBoost;
+
                 if (healPercent > 0) {
                     const isArena = this.arenaState.active;
                     if (isArena) {
@@ -1907,7 +1913,8 @@ class Game {
         }
 
         // 3. Calcul
-        const reduction = level * 50;
+        const collectionBonus = (this.getCollectionBonuses ? this.getCollectionBonuses() : {}).respawn_delay_reduction || 0;
+        const reduction = (level * 50) + collectionBonus;
 
         // 4. Résultat (Min 50ms)
         return Math.max(50, baseDelay - reduction);
@@ -5296,7 +5303,13 @@ class Game {
      * Chaque valeur = somme des (niveau × effet) pour toutes les familles complètes.
      */
     getCollectionBonuses() {
-        const out = { crit_chance: 0, life_steal: 0, gold_mult: 0, xp_mult: 0, damage_mult: 0, defense_mult: 0, max_hp_mult: 0, hp_regen_per_turn: 0 };
+        const out = {
+            crit_chance: 0, life_steal: 0, gold_mult: 0, xp_mult: 0, damage_mult: 0,
+            defense_mult: 0, max_hp_mult: 0, hp_regen_per_turn: 0,
+            attack_mult: 0, spattack_mult: 0, spdefense_mult: 0, speed_mult: 0,
+            leftovers_heal_mult: 0, respawn_delay_reduction: 0, crit_damage_mult: 0,
+            egg_drop_chance: 0, bonus_shard_chance: 0, expedition_time_reduction: 0
+        };
         if (typeof COLLECTION_BONUSES === 'undefined') return out;
 
         const allCreatures = this.getAllCreaturesForSynergies();
@@ -5334,9 +5347,44 @@ class Game {
             }
         });
 
-        const effectLabels = { crit_chance: 'Critique', life_steal: 'Life Steal', gold_mult: 'Argent', xp_mult: 'XP', damage_mult: 'Dégâts', defense_mult: 'Défense', max_hp_mult: 'PV Max', hp_regen_per_turn: 'Regen PV/tour' };
-        const effectFormatters = { crit_chance: v => `+${(v * 100).toFixed(1)}%`, life_steal: v => `+${(v * 100).toFixed(1)}%`, gold_mult: v => `+${(v * 100).toFixed(1)}%`, xp_mult: v => `+${(v * 100).toFixed(1)}%`, damage_mult: v => `+${(v * 100).toFixed(1)}%`, defense_mult: v => `+${(v * 100).toFixed(1)}%`, max_hp_mult: v => `+${(v * 100).toFixed(1)}%`, hp_regen_per_turn: v => `+${(v * 100).toFixed(1)}% PV/tour` };
-        const effectPerPrestigeLabels = { crit_chance: v => `+${((v || 0) * 100).toFixed(1)}% Critique/prestige`, life_steal: v => `+${((v || 0) * 100).toFixed(1)}% Life Steal/prestige`, gold_mult: v => `+${((v || 0) * 100).toFixed(1)}% Argent/prestige`, xp_mult: v => `+${((v || 0) * 100).toFixed(1)}% XP/prestige`, damage_mult: v => `+${((v || 0) * 100).toFixed(1)}% Dégâts/prestige`, defense_mult: v => `+${((v || 0) * 100).toFixed(1)}% Défense/prestige`, max_hp_mult: v => `+${((v || 0) * 100).toFixed(1)}% PV/prestige`, hp_regen_per_turn: v => `+${((v || 0) * 100).toFixed(1)}% Regen PV/tour` };
+        const effectLabels = {
+            crit_chance: 'Critique', life_steal: 'Life Steal', gold_mult: 'Argent', xp_mult: 'XP',
+            damage_mult: 'Dégâts', defense_mult: 'Défense', max_hp_mult: 'PV Max', hp_regen_per_turn: 'Regen PV/tour',
+            attack_mult: 'Attaque', spattack_mult: 'Atk Spé', spdefense_mult: 'Déf Spé', speed_mult: 'Vitesse',
+            leftovers_heal_mult: 'Effet Restes', respawn_delay_reduction: 'Respawn delay', crit_damage_mult: 'Dégâts Critiques',
+            egg_drop_chance: 'Drop Œuf', bonus_shard_chance: 'Shard Bonus', expedition_time_reduction: 'Temps d\'expédition'
+        };
+        const effectFormatters = {
+            crit_chance: v => `+${(v * 100).toFixed(1)}%`, life_steal: v => `+${(v * 100).toFixed(1)}%`,
+            gold_mult: v => `+${(v * 100).toFixed(1)}%`, xp_mult: v => `+${(v * 100).toFixed(1)}%`,
+            damage_mult: v => `+${(v * 100).toFixed(1)}%`, defense_mult: v => `+${(v * 100).toFixed(1)}%`,
+            max_hp_mult: v => `+${(v * 100).toFixed(1)}%`, hp_regen_per_turn: v => `+${(v * 100).toFixed(1)}% PV/tour`,
+            attack_mult: v => `+${(v * 100).toFixed(1)}%`, spattack_mult: v => `+${(v * 100).toFixed(1)}%`,
+            spdefense_mult: v => `+${(v * 100).toFixed(1)}%`, speed_mult: v => `+${(v * 100).toFixed(1)}%`,
+            leftovers_heal_mult: v => `+${(v * 100).toFixed(1)}%`, respawn_delay_reduction: v => `-${v}ms`,
+            crit_damage_mult: v => `+${(v * 100).toFixed(1)}%`, egg_drop_chance: v => `+${(v * 100).toFixed(1)}%`,
+            bonus_shard_chance: v => `+${(v * 100).toFixed(1)}%`, expedition_time_reduction: v => `-${(v * 100).toFixed(1)}%`
+        };
+        const effectPerPrestigeLabels = {
+            crit_chance: v => `+${((v || 0) * 100).toFixed(1)}% Critique/prestige`,
+            life_steal: v => `+${((v || 0) * 100).toFixed(1)}% Life Steal/prestige`,
+            gold_mult: v => `+${((v || 0) * 100).toFixed(1)}% Argent/prestige`,
+            xp_mult: v => `+${((v || 0) * 100).toFixed(1)}% XP/prestige`,
+            damage_mult: v => `+${((v || 0) * 100).toFixed(1)}% Dégâts/prestige`,
+            defense_mult: v => `+${((v || 0) * 100).toFixed(1)}% Défense/prestige`,
+            max_hp_mult: v => `+${((v || 0) * 100).toFixed(1)}% PV/prestige`,
+            hp_regen_per_turn: v => `+${((v || 0) * 100).toFixed(1)}% Regen PV/tour`,
+            attack_mult: v => `+${((v || 0) * 100).toFixed(1)}% Attaque/prestige`,
+            spattack_mult: v => `+${((v || 0) * 100).toFixed(1)}% Atk Spé/prestige`,
+            spdefense_mult: v => `+${((v || 0) * 100).toFixed(1)}% Déf Spé/prestige`,
+            speed_mult: v => `+${((v || 0) * 100).toFixed(1)}% Vitesse/prestige`,
+            leftovers_heal_mult: v => `+${((v || 0) * 100).toFixed(1)}% Effet Restes/prestige`,
+            respawn_delay_reduction: v => `-${v || 0}ms de délai de spawn/prestige`,
+            crit_damage_mult: v => `+${((v || 0) * 100).toFixed(1)}% Dégâts Critiques/prestige`,
+            egg_drop_chance: v => `+${((v || 0) * 100).toFixed(1)}% Chance de Drop Œuf/prestige`,
+            bonus_shard_chance: v => `+${((v || 0) * 100).toFixed(1)}% Chance de shard bonus/prestige`,
+            expedition_time_reduction: v => `-${((v || 0) * 100).toFixed(1)}% Temps d'expédition/prestige`
+        };
 
         return Object.entries(COLLECTION_BONUSES).map(([id, synergy]) => {
             const members = synergy.pokemon.map(name => {
@@ -5354,10 +5402,36 @@ class Game {
                 const total = typeof val === 'number' ? val * level : 0;
                 return total > 0 ? fmt(total) + ' ' + label : null;
             }).filter(Boolean);
-            const bonusPerPrestige = effectEntries.map(([key, val]) => {
+            let bonusPerPrestige = effectEntries.map(([key, val]) => {
                 const fn = effectPerPrestigeLabels[key];
                 return fn ? fn(val) : null;
             }).filter(Boolean).join(', ');
+
+            if (id === 'menu_best_of') {
+                bonusPerPrestige = '+1% all stats / prestige';
+            } else if (id === 'eco_plus') {
+                bonusPerPrestige = '+2.5% all stats / prestige';
+            } else if (id === 'not_a_pikachu') {
+                bonusPerPrestige = '+1.5% attaque spéciale / prestige';
+            } else if (id === 'zzzzz') {
+                bonusPerPrestige = '+0.5% d\'effet Restes / prestige';
+            } else if (id === 'hm_slaves') {
+                bonusPerPrestige = '+1% PV / prestige';
+            } else if (id === 'god_i_need_repel') {
+                bonusPerPrestige = '-25ms de spawn ennemi / prestige';
+            } else if (id === 'directed_by_michael_bay') {
+                bonusPerPrestige = '+10% de dégâts critiques / prestige';
+            } else if (id === 'god_i_need_one_friend' || id === 'god_i_need_two_friends') {
+                bonusPerPrestige = '+0.5% de chance de loot un oeuf / prestige';
+            } else if (id === 'three_friends') {
+                bonusPerPrestige = '+5% de chance de shard bonus / prestige';
+            } else if (id === 'forever_alone') {
+                bonusPerPrestige = '+1% de chance de shard bonus / prestige';
+            } else if (id === 'out_of_this_world') {
+                bonusPerPrestige = '-5% de temps d\'expédition / prestige';
+            } else if (id === 'the_600_club') {
+                bonusPerPrestige = '+1% de dégâts / prestige';
+            }
             return { id, name: synergy.name, members, minPrestige, level, effectTexts, bonusPerPrestige, isActive: level > 0 };
         });
     }
@@ -6035,6 +6109,10 @@ class Game {
     getEggDropBonus() {
         let bonus = this.upgrades.eggDrop.level * 0.002;
 
+        // Ajouter le bonus de la collection
+        const collBonus = (this.getCollectionBonuses ? this.getCollectionBonuses() : {}).egg_drop_chance || 0;
+        bonus += collBonus;
+
         // Ajouter les boosts temporaires
         bonus += this.getActiveBoostMultiplier('eggDrop');
 
@@ -6390,6 +6468,10 @@ class Game {
 
         // ✅ FIX : Ajout du Badge d'Arène (Prestige)
         chance += this.getAccountTalentBonus('shard_chance');
+
+        // Bonus de la collection
+        const collBonus = (this.getCollectionBonuses ? this.getCollectionBonuses() : {}).bonus_shard_chance || 0;
+        chance += collBonus;
 
         return chance;
     }
@@ -8577,18 +8659,18 @@ class Game {
         if (expBadge) {
             const parts = [];
             if (expToClaim > 0) parts.push(`<span class="tab-badge tab-badge-claim" title="Récompense(s) d'expédition à récupérer">${expToClaim}</span>`);
-            
+
             // Calcul du nombre de missions disponibles (non lancées) et slots libres
             const availableMissionsCount = this.availableExpeditions ? this.availableExpeditions.length : 0;
             const freeSlotsCount = this.maxExpeditionSlots - (this.activeExpeditions ? this.activeExpeditions.length : 0);
-            
+
             // On affiche le nombre de missions qu'on peut REELLEMENT lancer (le minimum entre les slots libres et les missions disponibles)
             const playableMissionsCount = Math.min(availableMissionsCount, freeSlotsCount);
-            
+
             if (playableMissionsCount > 0) {
                 parts.push(`<span class="tab-badge tab-badge-accept" title="Mission(s) d'expédition disponible(s)">${playableMissionsCount}</span>`);
             }
-            
+
             expBadge.innerHTML = parts.join('');
             expBadge.style.display = parts.length ? '' : 'none';
         }

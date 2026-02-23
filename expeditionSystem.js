@@ -276,21 +276,33 @@ function startExpeditionLogic(game, storageIndices, expeditionUid, expeditionId)
     }
 
     let duration = normalizeExpeditionDurationMs(expeditionDef.duration);
+    let timeReduction = 0;
+
     if (typeof EXPEDITION_BIOMES !== 'undefined') {
         const biome = EXPEDITION_BIOMES[expeditionId];
         if (biome && game.expeditionMastery) {
             const xp = game.expeditionMastery[biome] || 0;
-            let timeReduction = 0;
             if (typeof BIOME_MASTERY_LEVELS !== 'undefined') {
                 for (let lvl = 5; lvl >= 1; lvl--) {
                     if (xp >= BIOME_MASTERY_LEVELS[lvl].xpRequired) {
-                        timeReduction = BIOME_MASTERY_LEVELS[lvl].bonus;
+                        timeReduction += BIOME_MASTERY_LEVELS[lvl].bonus;
                         break;
                     }
                 }
             }
-            if (timeReduction > 0) duration = Math.floor(duration * (1 - timeReduction));
         }
+    }
+
+    // Ajout du bonus de collection "Out of this World"
+    if (game.getCollectionBonuses) {
+        const collBonus = game.getCollectionBonuses().expedition_time_reduction || 0;
+        timeReduction += collBonus;
+    }
+
+    // Cap à 90% de réduction maximum pour éviter les softlocks ou durées négatives
+    if (timeReduction > 0) {
+        timeReduction = Math.min(0.9, timeReduction);
+        duration = Math.floor(duration * (1 - timeReduction));
     }
 
     const expedition = {

@@ -1835,6 +1835,71 @@ const COLLECTION_BONUSES = {
         name: "Chasseurs nocturnes",
         pokemon: ['Crobat', 'Weavile', 'Absol', 'Honchkrow', 'Umbreon', 'Noctowl'],
         effect: { crit_chance: 0.006 }
+    },
+    'menu_best_of': {
+        name: "Menu Best Of",
+        pokemon: ['Blissey', 'Rampardos', 'Steelix', 'Mewtwo', 'Shuckle', 'Ninjask'],
+        effect: { max_hp_mult: 0.01, attack_mult: 0.01, defense_mult: 0.01, speed_mult: 0.01 } // +1% dans toutes les stats
+    },
+    'eco_plus': {
+        name: "Eco+",
+        pokemon: ['Shedinja', 'Smeargle', 'Jynx', 'Sudowoodo', 'Sharpedo', 'Torkoal'],
+        effect: { max_hp_mult: 0.025, attack_mult: 0.025, defense_mult: 0.025, speed_mult: 0.025 } // +2.5% dans toutes les stats
+    },
+    'not_a_pikachu': {
+        name: "Not A Pikachu",
+        pokemon: ['Jolteon', 'Ampharos', 'Manectric', 'Plusle', 'Minun'],
+        effect: { spattack_mult: 0.015 } // +1.5% attaque spéciale
+    },
+    'zzzzz': {
+        name: "ZzZzZ",
+        pokemon: ['Snorlax', 'Slaking', 'Slowbro'],
+        effect: { leftovers_heal_mult: 0.005 } // +0.5% d'effet supplémentaire de l'objet "Restes"
+    },
+    'hm_slaves': {
+        name: "HM SLaves",
+        pokemon: ["Farfetch'd", "Furret", "Linoone", "Bibarel"],
+        effect: { max_hp_mult: 0.01 } // +1% HP
+    },
+    'god_i_need_repel': {
+        name: "god...I Need repel",
+        pokemon: ["Zubat", "Geodude", "Tentacool", "Diglett"],
+        effect: { respawn_delay_reduction: 25 } // -25ms délai de spawn
+    },
+    'directed_by_michael_bay': {
+        name: "Directed by Michael Bay",
+        pokemon: ["Electrode", "Forretress", "Weezing"],
+        effect: { crit_damage_mult: 0.10 } // +10% dégâts critiques
+    },
+    'god_i_need_one_friend': {
+        name: "God ... I need one friend",
+        pokemon: ["Alakazam", "Machamp", "Golem", "Gengar"],
+        effect: { egg_drop_chance: 0.005 } // +0.5% chance par niveau
+    },
+    'god_i_need_two_friends': {
+        name: "God... I need two friends",
+        pokemon: ["Politoed", "Slowking", "Steelix", "Scizor", "Kingdra", "Porygon2"],
+        effect: { egg_drop_chance: 0.005 } // +0.5% chance par niveau
+    },
+    'three_friends': {
+        name: "Three friends...",
+        pokemon: ["Huntail", "Gorebyss"],
+        effect: { bonus_shard_chance: 0.05 } // +5% chance par niveau
+    },
+    'forever_alone': {
+        name: "Forever ALone",
+        pokemon: ["Rhyperior", "Electivire", "Magmortar", "Porygon-Z", "Dusknoir"],
+        effect: { bonus_shard_chance: 0.01 } // +1% chance par niveau
+    },
+    'out_of_this_world': {
+        name: "Out of this World",
+        pokemon: ["Clefairy", "Staryu", "Lunatone", "Solrock", "Deoxys"],
+        effect: { expedition_time_reduction: 0.05 } // -5% temps d'expédition par niveau
+    },
+    'the_600_club': {
+        name: "The 600 club",
+        pokemon: ["Dragonite", "Tyranitar", "Salamence", "Metagross", "Garchomp"],
+        effect: { damage_mult: 0.01 } // +1% dégâts
     }
 };
 

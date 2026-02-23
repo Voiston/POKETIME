@@ -372,13 +372,17 @@ class Creature {
             }
         }
 
-        // ✅ CORRECTION CRITIQUE (x2 ou x3 avec Sniper)
+        // ✅ CORRECTION CRITIQUE (x2 ou x3 avec Sniper + Bonus Collection)
         if (isCritical) {
+            let critDamageMulti = 2.0;
             if (attacker.passiveTalent === 'sniper') {
-                multiplier *= 3.0; // Sniper
-            } else {
-                multiplier *= 2.0; // Standard (était 1.5 avant, c'était une erreur)
+                critDamageMulti = 3.0; // Sniper
             }
+            if (!attacker.isEnemy && gameContext && gameContext.getCollectionBonuses) {
+                const collDmg = gameContext.getCollectionBonuses().crit_damage_mult || 0;
+                if (collDmg > 0) critDamageMulti += collDmg;
+            }
+            multiplier *= critDamageMulti;
         }
 
         // Talent Opportuniste (Si cible a un statut)
@@ -852,17 +856,30 @@ class Creature {
         // 3️⃣ Bonus Jetons Prestige (Stats perso) — % plat : ajouté au multiplicateur global, pas multiplié
         if (!this.prestigeBonuses) this.prestigeBonuses = { hp: 0, attack: 0, defense: 0, spattack: 0, spdefense: 0, speed: 0 };
         const PRESTIGE_TOKEN_PCT = 0.05; // +5% par jeton, appliqué en additif sur le mult global
-        const pFlatHP    = this.prestigeBonuses.hp      * PRESTIGE_TOKEN_PCT;
-        const pFlatATK   = this.prestigeBonuses.attack * PRESTIGE_TOKEN_PCT;
+        const pFlatHP = this.prestigeBonuses.hp * PRESTIGE_TOKEN_PCT;
+        const pFlatATK = this.prestigeBonuses.attack * PRESTIGE_TOKEN_PCT;
         const pFlatSpATK = this.prestigeBonuses.spattack * PRESTIGE_TOKEN_PCT;
-        const pFlatDEF   = this.prestigeBonuses.defense * PRESTIGE_TOKEN_PCT;
+        const pFlatDEF = this.prestigeBonuses.defense * PRESTIGE_TOKEN_PCT;
         const pFlatSpDEF = this.prestigeBonuses.spdefense * PRESTIGE_TOKEN_PCT;
-        const pFlatSPD   = this.prestigeBonuses.speed  * PRESTIGE_TOKEN_PCT;
+        const pFlatSPD = this.prestigeBonuses.speed * PRESTIGE_TOKEN_PCT;
 
         // 4️⃣ RÉCUPÉRATION DES SYNERGIES (C'est ici que la magie opère !)
         let syn = { attack_mult: 1, defense_mult: 1, max_hp_mult: 1, speed_mult: 1 };
         if (!this.isEnemy && typeof game !== 'undefined' && game?.getActiveSynergies) {
-            syn = game.getActiveSynergies();
+            syn = { ...syn, ...game.getActiveSynergies() };
+        }
+
+        let baseSpAttackMult = syn.spattack_mult !== undefined ? syn.spattack_mult : syn.attack_mult;
+        let baseSpDefenseMult = syn.spdefense_mult !== undefined ? syn.spdefense_mult : syn.defense_mult;
+
+        if (!this.isEnemy && typeof game !== 'undefined' && game?.getCollectionBonuses) {
+            const collBonuses = game.getCollectionBonuses();
+            syn.attack_mult += collBonuses.attack_mult || 0;
+            syn.defense_mult += collBonuses.defense_mult || 0;
+            syn.max_hp_mult += collBonuses.max_hp_mult || 0;
+            syn.speed_mult += collBonuses.speed_mult || 0;
+            baseSpAttackMult += collBonuses.spattack_mult || 0;
+            baseSpDefenseMult += collBonuses.spdefense_mult || 0;
         }
 
         // 5️⃣ Calcul Final : mult global = (rarity * prestige * ... * syn) + bonus jetons en % plat
@@ -878,7 +895,7 @@ class Creature {
         );
 
         this.spattack = Math.floor(
-            baseStats.spattack * (multBase * syn.attack_mult + pFlatSpATK) + attackBonus
+            baseStats.spattack * (multBase * baseSpAttackMult + pFlatSpATK) + attackBonus
         );
 
         this.defense = Math.floor(
@@ -886,7 +903,7 @@ class Creature {
         );
 
         this.spdefense = Math.floor(
-            baseStats.spdefense * (multBase * syn.defense_mult + pFlatSpDEF)
+            baseStats.spdefense * (multBase * baseSpDefenseMult + pFlatSpDEF)
         );
 
         this.speed = Math.floor(
