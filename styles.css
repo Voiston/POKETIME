@@ -10582,8 +10582,43 @@ body.narrative-stats-visible .header {
     }
 
     .quest-completion-content {
-        width: 92vw !important;
-        max-width: 92vw !important;
+        width: 95vw !important;
+        max-width: 95vw !important;
+        padding: 15px !important;
+    }
+
+    /* Réduction globale du modal d'éclosion d'œuf sur mobile */
+    .quest-completion-content .egg-hatch-sprite {
+        width: 100px !important;
+        height: 100px !important;
+        margin: 5px 0 !important;
+    }
+
+    .quest-completion-content .egg-hatch-name {
+        font-size: 16px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .quest-completion-content .egg-hatch-title {
+        font-size: 14px !important;
+    }
+
+    .quest-completion-content .egg-hatch-stats {
+        margin: 10px 0 !important;
+    }
+
+    .quest-completion-content .creature-stats {
+        gap: 4px !important;
+    }
+
+    .quest-completion-content .stat-row {
+        margin-bottom: 2px !important;
+        font-size: 11px !important;
+    }
+
+    .quest-completion-content .btn-super-confirm {
+        padding: 10px !important;
+        font-size: 14px !important;
     }
 
     /* Compact popup plein écran */
@@ -10714,10 +10749,12 @@ body.narrative-stats-visible .header {
 
     /* --- TEAM AREA ACTIONS (Plus compact) --- */
     .card-actions {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 4px !important;
-        padding: 4px 0 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 6px 0 !important;
     }
 
     .card-actions button {
