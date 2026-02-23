@@ -10588,26 +10588,32 @@ body.narrative-stats-visible .header {
     }
 
     /* Réduction globale du modal d'éclosion d'œuf sur mobile */
-    .quest-completion-content .egg-hatch-sprite {
+    .quest-completion-content .egg-hatch-sprite,
+    .auto-egg-hatch-mini .egg-hatch-sprite {
         width: 100px !important;
         height: 100px !important;
-        margin: 5px 0 !important;
+        margin: 5px auto !important;
+        display: block !important;
     }
 
-    .quest-completion-content .egg-hatch-name {
+    .quest-completion-content .egg-hatch-name,
+    .auto-egg-hatch-mini .egg-hatch-name {
         font-size: 16px !important;
         margin-bottom: 5px !important;
     }
 
-    .quest-completion-content .egg-hatch-title {
+    .quest-completion-content .egg-hatch-title,
+    .auto-egg-hatch-mini .egg-hatch-title {
         font-size: 14px !important;
     }
 
-    .quest-completion-content .egg-hatch-types {
+    .quest-completion-content .egg-hatch-types,
+    .auto-egg-hatch-mini .egg-hatch-types {
         display: none !important;
     }
 
-    .quest-completion-content .egg-hatch-stats {
+    .quest-completion-content .egg-hatch-stats,
+    .auto-egg-hatch-mini .egg-hatch-stats {
         display: none !important;
     }
 

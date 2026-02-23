@@ -3,7 +3,7 @@
   "short_name": "Pokétime",
   "description": "Un jeu incrémental Pokémon",
   "start_url": ".",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#1e293b",
   "theme_color": "#0f172a",
   "icons": [
