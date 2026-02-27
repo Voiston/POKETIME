@@ -5133,6 +5133,21 @@ h3 {
     background: rgba(148, 120, 100, 0.25) !important;
 }
 
+.game-container.has-themed-header-bg .combat-area .zone-selector,
+.game-container.has-themed-header-bg .combat-area .combat-controls-wrapper {
+    background: rgba(190, 195, 198, 0.25) !important;
+    border-color: rgba(59, 59, 59, 0.50) !important;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.game-container.has-themed-header-bg .tabs-container {
+    background: rgba(190, 195, 198, 0.25) !important;
+    border-bottom-color: rgba(59, 59, 59, 0.50) !important;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
 /* Barre des Onglets (Fixe en haut) */
 .tabs-container {
     display: flex;
