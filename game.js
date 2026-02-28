@@ -9340,7 +9340,7 @@ class Game {
 
                         const data = ctx.getImageData(0, 0, canvasW, canvasH).data;
                         const extracted = [];
-                        for (let i = 0; i < data.length; i += 4) {
+                        for (let i = 0; i < data.length; i += 8) {
                             const alpha = data[i + 3] / 255;
                             if (alpha <= 0.05) continue;
                             const r = data[i];
